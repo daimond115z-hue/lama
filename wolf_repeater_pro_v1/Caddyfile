@@ -1,0 +1,7 @@
+yourdomain.com {
+    reverse_proxy localhost:5000
+}
+
+:80 {
+    reverse_proxy localhost:5000
+}

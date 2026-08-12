@@ -1,0 +1,683 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>WOLF Repeater Pro</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --bg-1: #150b1a;
+      --bg-2: #24162f;
+      --panel: rgba(33, 20, 38, 0.9);
+      --panel-strong: rgba(41, 26, 47, 0.96);
+      --line: rgba(255,255,255,0.08);
+      --pink: #ff7dc9;
+      --purple: #9a6bff;
+      --text: #fff5ff;
+      --muted: #f8d9ff;
+      --shadow: rgba(38, 18, 56, 0.52);
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      background:
+        radial-gradient(circle at top, rgba(255, 125, 201, 0.22), transparent 28%),
+        radial-gradient(circle at bottom left, rgba(154, 107, 255, 0.18), transparent 24%),
+        linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+      color: var(--text);
+      font-family: "Segoe UI", Tahoma, sans-serif;
+    }
+    main {
+      width: min(100%, 1120px);
+      margin: 0 auto;
+      padding: 18px 16px 36px;
+    }
+    header {
+      position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: flex-start;
+      gap: 14px;
+      min-height: 110px;
+      margin-bottom: 16px;
+      padding: 16px 18px;
+      border-radius: 24px;
+      border: 1px solid var(--line);
+      background: linear-gradient(135deg, rgba(255,125,201,0.18), rgba(154,107,255,0.12));
+      overflow: hidden;
+      box-shadow: 0 22px 48px rgba(17, 16, 28, 0.4);
+    }
+    header::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(135deg, rgba(18, 20, 34, 0.2), rgba(40, 20, 54, 0.35)),
+        url('https://images.unsplash.com/photo-1578632767115-351597cf2477?auto=format&fit=crop&w=1200&q=80') center/cover no-repeat;
+      opacity: 0.9;
+      mix-blend-mode: screen;
+    }
+    header > * { position: relative; z-index: 1; }
+    header h1 { margin: 0; font-size: clamp(1.2rem, 1.9vw, 2rem); letter-spacing: 0.04em; font-weight: 800; }
+    header p { display: none; }
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 7px 12px;
+      background: rgba(53, 32, 64, 0.8);
+      border: 1px solid rgba(255, 122, 199, 0.22);
+      border-radius: 999px;
+      color: var(--gold);
+      font-weight: 700;
+      font-size: 0.76rem;
+      letter-spacing: 0.04em;
+      margin-bottom: 8px;
+    }
+    .hero-ornament {
+      position: absolute;
+      left: 22px;
+      top: 20px;
+      width: 88px;
+      height: 88px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,0.1);
+      background: linear-gradient(135deg, rgba(255,125,201,0.20), rgba(154,107,255,0.12));
+      box-shadow: 0 16px 34px rgba(31, 15, 42, 0.25);
+      opacity: 0.7;
+    }
+
+    .grid { display: grid; gap: 16px; }
+    .grid-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .card {
+      padding: 16px 16px 18px;
+      border-radius: 20px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(34, 20, 37, 0.96), rgba(28, 20, 35, 0.92));
+      box-shadow: 0 18px 36px rgba(13, 11, 20, 0.26);
+    }
+    .card h2 { margin-top: 0; margin-bottom: 12px; font-size: 1.05rem; }
+    .field-group { display: grid; gap: 12px; }
+    label { font-size: 0.82rem; color: #e5cce8; }
+    input {
+      width: 100%;
+      padding: 11px 12px;
+      border-radius: 12px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(22, 17, 32, .9);
+      color: #fff0fb;
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color .2s ease, box-shadow .2s ease;
+    }
+    input:focus { border-color: #d08fe3; box-shadow: 0 0 0 4px rgba(208, 143, 227, .12); }
+    .button-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 12px; }
+    button {
+      cursor: pointer;
+      border: none;
+      border-radius: 12px;
+      padding: 10px 14px;
+      font-size: 0.88rem;
+      font-weight: 800;
+      transition: transform .15s ease, filter .15s ease, box-shadow .15s ease;
+      box-shadow: 0 14px 28px rgba(0,0,0,0.18);
+    }
+    button:hover { transform: translateY(-1px); filter: brightness(1.08); }
+    .btn-primary { background: linear-gradient(135deg, var(--pink), var(--purple)); color: #fff; }
+    .btn-warning { background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff; }
+    .btn-danger { background: linear-gradient(135deg, var(--pink), var(--purple)); color: #fff; }
+    .btn-secondary { background: linear-gradient(135deg, var(--purple), var(--pink)); color: #fff; }
+    .status-box {
+      display: grid;
+      gap: 8px;
+      padding: 16px;
+      border-radius: 16px;
+      background: linear-gradient(180deg, rgba(28, 18, 31, 0.96), rgba(17, 18, 29, 0.94));
+      border: 1px solid rgba(255,255,255,.08);
+      margin-top: 18px;
+    }
+    .status-box strong { color: #f3d3f0; }
+    .status-line { display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: wrap; color: #efdee9; }
+    .status-line span { color: #f5b9e5; }
+    .helper { color: #d9b7d9; font-size: .88rem; line-height: 1.5; }
+    .note { margin-top: 12px; color: #d8a9d7; font-size: .9rem; }
+    .log-panel { display: grid; gap: 12px; margin-top: 14px; }
+    .log-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 10px; }
+    .log-list { max-height: 260px; overflow: auto; padding: 14px; border-radius: 18px; background: rgba(23, 17, 29, 0.96); border: 1px solid rgba(255,209,241,.12); }
+    .log-item {
+      margin-bottom: 10px;
+      padding: 12px 14px;
+      border-radius: 12px;
+      background: rgba(49, 16, 53, .95);
+      color: #f2d8f4;
+      border: 1px solid rgba(255,192,239,.16);
+    }
+    .log-item time { display: block; font-size: .8rem; color: #f1c4e8; margin-bottom: 4px; }
+
+    #command-list { display: grid; gap: 12px; margin-top: 14px; }
+    .command-item { padding: 16px; border-radius: 18px; background: rgba(18, 24, 44, .95); border: 1px solid rgba(255,255,255,.05); }
+    .command-meta { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; color: #a9b8db; font-size: .93rem; }
+    .badge { display: inline-flex; align-items: center; gap: 8px; font-size: .95rem; letter-spacing: .02em; }
+    .badge.active { color: #8ff5c7; }
+    .badge.waiting { color: #f4d56d; }
+
+    .command-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+      margin-top: 14px;
+    }
+    .mini-command {
+      padding: 12px 12px 14px;
+      border-radius: 16px;
+      border: 1px solid rgba(255,255,255,.08);
+      background: linear-gradient(180deg, rgba(23, 28, 44, 0.96), rgba(18, 20, 30, 0.94));
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.04);
+    }
+    .mini-command h3 {
+      margin: 0 0 10px;
+      font-size: 0.95rem;
+      text-align: center;
+    }
+    .mini-time {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin-bottom: 10px;
+    }
+    .mini-command .mini-time input {
+      min-width: 0;
+      padding: 10px 12px;
+      font-size: 0.88rem;
+      text-align: center;
+    }
+    .mini-command select {
+      width: 100%;
+      margin-top: 6px;
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid rgba(255,255,255,.12);
+      background: rgba(22, 17, 32, .9);
+      color: #fff0fb;
+      font-size: 0.88rem;
+    }
+    .mini-command button {
+      width: 100%;
+      padding: 10px 12px;
+      font-size: 0.86rem;
+    }
+
+    @media (max-width: 840px) {
+      .grid-2 { grid-template-columns: 1fr; }
+      .command-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    @media (max-width: 520px) {
+      main { padding: 12px 12px 28px; }
+      header { min-height: 90px; padding: 14px 16px; }
+      .hero-ornament { width: 70px; height: 70px; left: 14px; top: 12px; }
+      .command-grid { grid-template-columns: 1fr; }
+      .card { border-radius: 16px; }
+      .button-row { display: grid; grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <div class="hero-ornament" aria-hidden="true"></div>
+    </header>
+
+    <div class="grid grid-2">
+      <section class="card">
+        <h2>🔐 تسجيل الدخول</h2>
+        <div class="field-group">
+          <label for="email">الحساب / البريد</label>
+          <input id="email" type="email" placeholder="user@example.com">
+          <label for="pass">كلمة المرور</label>
+          <input id="pass" type="password" placeholder="••••••••">
+        </div>
+        <div class="button-row">
+          <button class="btn-primary" onclick="connect()">🔌 اتصال</button>
+          <button class="btn-danger" onclick="disconnect()">⛔ قطع</button>
+        </div>
+        <div class="status-box" id="status">
+          <div class="status-line"><strong>الحالة</strong><span>غير متصل</span></div>
+          <div class="status-line"><strong>رسالة</strong><span>البرنامج جاهز للعمل.</span></div>
+          <div class="status-line"><strong>الروم</strong><span>لم يتم تحديده</span></div>
+        </div>
+      </section>
+
+      <section class="card">
+        <h2>🏠 إدارة الغرفة</h2>
+        <div class="field-group">
+          <label for="room">معرف الغرفة</label>
+          <input id="room" placeholder="مثال: 123456789">
+          <label for="room-pass">كلمة مرور الغرفة (إذا وُجدت)</label>
+          <input id="room-pass" type="password" placeholder="••••••••">
+        </div>
+        <div class="button-row">
+          <button class="btn-warning" onclick="room()">📥 حفظ وطلب دخول الغرفة</button>
+        </div>
+        <p class="note">عند الحفظ، سيتم إرسال طلب الدخول إلى الغرفة الموجودة في WOLF بعد تسجيل الدخول.</p>
+      </section>
+    </div>
+
+    <section class="card">
+      <div class="log-header">
+        <div>
+          <h2>📝 سجل النشاط</h2>
+          <p class="helper">يسجل كل أمر يتم تنفيذه من الحساب أو الأتمتة.</p>
+        </div>
+        <button class="btn-secondary" onclick="clearLog()">مسح السجل</button>
+      </div>
+      <div id="log-list" class="log-list"></div>
+    </section>
+
+    <section class="card">
+      <h2>📋 الأوامر</h2>
+      <p class="helper">اختر الوقت ثم أضف الأمر. لا داعي للكتابة في كل مرة.</p>
+
+      <div class="command-grid">
+        <div class="mini-command" style="background: linear-gradient(180deg, rgba(43, 28, 36, 0.96), rgba(20, 18, 25, 0.94)); border-color: rgba(239, 84, 96, .18);">
+          <h3>🏆 تحدي</h3>
+          <input id="challenge-user" placeholder="اسم الخصم">
+          <div class="mini-time" style="margin-top: 8px;">
+            <input id="challenge-guess" type="number" min="1" max="2" inputmode="numeric" placeholder="رقمي 1 أو 2">
+            <input id="challenge-opponent-accept" type="text" placeholder="قبول الخصم" value="">
+          </div>
+          <div class="mini-time">
+            <input id="tmin" type="number" min="0" value="1" placeholder="د"><input id="tsec" type="number" min="0" max="59" value="0" placeholder="ث">
+          </div>
+          <button class="btn-secondary" onclick="add('تحدي بطل', document.getElementById('challenge-user').value, document.getElementById('challenge-guess').value, document.getElementById('challenge-opponent-accept').value)">إضافة</button>
+        </div>
+
+        <div class="mini-command" style="background: linear-gradient(180deg, rgba(23, 33, 48, 0.96), rgba(18, 23, 31, 0.94)); border-color: rgba(78, 220, 239, .18);">
+          <h3>🟢 جمع</h3>
+          <div class="mini-time">
+            <input id="cm" type="number" min="0" value="3" placeholder="د"><input id="cs" type="number" min="0" max="59" value="0" placeholder="ث">
+          </div>
+          <button class="btn-secondary" onclick="add('جمع بطل','')">إضافة</button>
+        </div>
+
+        <div class="mini-command" style="background: linear-gradient(180deg, rgba(38, 29, 36, 0.96), rgba(22, 18, 23, 0.94)); border-color: rgba(245, 197, 76, .18);">
+          <h3>⚔️ سطو</h3>
+          <div class="mini-time">
+            <input id="rmin" type="number" min="0" value="3" placeholder="د"><input id="rsec" type="number" min="0" max="59" value="0" placeholder="ث">
+          </div>
+          <button class="btn-secondary" onclick="add('سطو بطل','')">إضافة</button>
+        </div>
+
+        <div class="mini-command" style="background: linear-gradient(180deg, rgba(44, 30, 54, 0.96), rgba(20, 16, 28, 0.94)); border-color: rgba(196, 119, 255, .18);">
+          <h3>✨ معزز</h3>
+          <div class="mini-time">
+            <input id="boost-min" type="number" min="0" value="5" placeholder="د"><input id="boost-sec" type="number" min="0" max="59" value="0" placeholder="ث">
+          </div>
+          <button class="btn-secondary" onclick="add('معزز','')">إضافة</button>
+        </div>
+      </div>
+
+      <div class="field-group" style="margin-top: 16px;">
+        <label for="quick-command">أمر مخصص</label>
+        <input id="quick-command" placeholder="اكتب الأمر لو أردت التنفيذ اليدوي">
+      </div>
+      <div class="button-row">
+        <button class="btn-primary" onclick="sendQuickCommand()">🚀 إرسال الأمر</button>
+      </div>
+
+      <div id="command-list" class="command-list"></div>
+    </section>
+  </main>
+
+  <script>
+    const storageKey = 'wrp-commands';
+    const commands = JSON.parse(localStorage.getItem(storageKey) || '[]');
+    const timers = {};
+
+    const statusContainer = document.getElementById('status');
+    const logList = document.getElementById('log-list');
+    const historyLog = [];
+
+    function saveCommands() {
+      localStorage.setItem(storageKey, JSON.stringify(commands));
+    }
+
+    function addLog(message) {
+      const entry = { message, time: new Date().toLocaleTimeString('ar-EG') };
+      historyLog.unshift(entry);
+      if (historyLog.length > 50) {
+        historyLog.pop();
+      }
+      renderLog();
+    }
+
+    function renderLog() {
+      if (!logList) return;
+      if (!historyLog.length) {
+        logList.innerHTML = '<div class="log-item">لا يوجد سجلات بعد.</div>';
+        return;
+      }
+      logList.innerHTML = historyLog.map(entry => `
+        <div class="log-item">
+          <time>${entry.time}</time>
+          <div>${entry.message}</div>
+        </div>
+      `).join('');
+    }
+
+    function clearLog() {
+      historyLog.length = 0;
+      renderLog();
+    }
+
+    function updateStatus(data) {
+      statusContainer.innerHTML = `
+        <div class="status-line"><strong>الحالة</strong><span>${data.state}</span></div>
+        <div class="status-line"><strong>رسالة</strong><span>${data.message}</span></div>
+        <div class="status-line"><strong>الروم</strong><span>${data.room || 'لم يتم تحديده'}</span></div>
+      `;
+    }
+
+    async function loadStatus() {
+      try {
+        const response = await fetch('/api/status');
+        const data = await response.json();
+        updateStatus(data);
+        addLog(`تم جلب الحالة الحالية: ${data.state} - ${data.message}`);
+      } catch (error) {
+        addLog(`فشل جلب الحالة: ${error.message || 'خطأ غير معروف'}`);
+      }
+    }
+
+    async function connect() {
+      const email = document.getElementById('email').value.trim();
+      const password = document.getElementById('pass').value;
+      if (!email || !password) {
+        addLog('يرجى إدخال الحساب وكلمة المرور أولاً.');
+        return updateStatus({ state: 'خطأ', message: 'أدخل الحساب وكلمة المرور', room: document.getElementById('room').value.trim() });
+      }
+
+      try {
+        const response = await fetch('/api/connect', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          const errorText = data?.message || response.statusText || 'فشل تسجيل الدخول';
+          addLog(`فشل تسجيل الدخول: ${errorText}`);
+          return updateStatus({ state: 'خطأ', message: errorText, room: document.getElementById('room').value.trim() });
+        }
+
+        addLog(`تم تسجيل الدخول كمستخدم ${email}`);
+        updateStatus(data);
+      } catch (error) {
+        addLog(`فشل تسجيل الدخول: ${error.message || 'فشل الاتصال'}`);
+        updateStatus({ state: 'خطأ', message: error.message || 'فشل الاتصال', room: document.getElementById('room').value.trim() });
+      }
+    }
+
+    async function disconnect() {
+      try {
+        const response = await fetch('/api/disconnect', { method: 'POST' });
+        const data = await response.json();
+        addLog('تم قطع الاتصال.');
+        updateStatus(data);
+      } catch (error) {
+        addLog(`فشل قطع الاتصال: ${error.message || 'خطأ غير معروف'}`);
+        updateStatus({ state: 'خطأ', message: error.message || 'فشل قطع الاتصال', room: document.getElementById('room').value.trim() });
+      }
+    }
+
+    async function room() {
+      const roomId = document.getElementById('room').value.trim();
+      const roomPassword = document.getElementById('room-pass').value.trim();
+      try {
+        const response = await fetch('/api/room', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ room: roomId, password: roomPassword })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          addLog(`فشل طلب دخول الغرفة ${roomId}: ${data?.message || response.statusText || 'فشل طلب الروم'}`);
+          return updateStatus({ state: 'خطأ', message: data?.message || 'فشل طلب الروم', room: roomId });
+        }
+        addLog(`طلب دخول الغرفة ${roomId} نُفذ. ${data.message}`);
+        updateStatus(data);
+      } catch (error) {
+        addLog(`فشل طلب دخول الغرفة ${roomId}: ${error.message || 'خطأ غير معروف'}`);
+        updateStatus({ state: 'خطأ', message: error.message || 'فشل طلب الروم', room: roomId });
+      }
+    }
+
+    async function sendRoomMessage(customContent) {
+      const content = (customContent || document.getElementById('quick-command')?.value || '').trim();
+      if (!content) {
+        addLog('لم يتم إدخال نص الرسالة أو الأمر.');
+        return updateStatus({ state: 'خطأ', message: 'أدخل نص الرسالة أو الأمر', room: document.getElementById('room').value.trim() });
+      }
+
+      try {
+        const response = await fetch('/api/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          addLog(`فشل إرسال الرسالة: ${data?.message || response.statusText || 'فشل إرسال الرسالة'}`);
+          return updateStatus({ state: 'خطأ', message: data?.message || 'فشل إرسال الرسالة', room: document.getElementById('room').value.trim() });
+        }
+        addLog(`تم تنفيذ الأمر: ${content}`);
+        updateStatus(data);
+      } catch (error) {
+        addLog(`فشل إرسال الرسالة: ${error.message || 'خطأ غير معروف'}`);
+        updateStatus({ state: 'خطأ', message: error.message || 'فشل إرسال الرسالة', room: document.getElementById('room').value.trim() });
+      }
+    }
+
+    function sendQuickCommand() {
+      const content = document.getElementById('quick-command').value.trim();
+      if (!content) {
+        addLog('لا يوجد أمر مخصص لإرساله.');
+        return updateStatus({ state: 'خطأ', message: 'اكتب الأمر أولاً', room: document.getElementById('room').value.trim() });
+      }
+      sendRoomMessage(content);
+      document.getElementById('quick-command').value = '';
+    }
+
+    function normalizeChallengeGuess(value, fallback) {
+      const normalized = String(value ?? '').trim();
+      if (normalized === '1' || normalized === '2') return normalized;
+      return fallback || '1';
+    }
+
+    function add(type, member, guessValue, opponentAcceptValue) {
+      const min = type === 'جمع بطل' ? document.getElementById('cm').value : type === 'سطو بطل' ? document.getElementById('rmin').value : type === 'معزز' ? document.getElementById('boost-min').value : document.getElementById('tmin').value;
+      const sec = type === 'جمع بطل' ? document.getElementById('cs').value : type === 'سطو بطل' ? document.getElementById('rsec').value : type === 'معزز' ? document.getElementById('boost-sec').value : document.getElementById('tsec').value;
+
+      const cleanMember = (member || '').trim();
+      const challengeGuess = normalizeChallengeGuess(guessValue, '1');
+      const opponentAccept = (opponentAcceptValue || '').trim();
+
+      const commandMeta = { type, member: cleanMember, min: Number(min) || 0, sec: Number(sec) || 0, active: false, guess: type === 'تحدي بطل' ? challengeGuess : '', accept: type === 'تحدي بطل' ? opponentAccept : '' };
+      commands.push(commandMeta);
+      saveCommands();
+      renderCommands();
+      addLog(`تم إضافة الأمر إلى القائمة: ${getCommandText(commandMeta)}`);
+    }
+
+    function getCommandText(item) {
+      if (item.type === 'أمر مخصص') return item.member;
+      if (item.type === 'جمع بطل') return '!مملكة بطل جمع';
+      if (item.type === 'سطو بطل') return `!مملكة بطل سطو ${item.member || 'اسم_المنافس'}`;
+      if (item.type === 'معزز') return item.member ? `!مملكة بطل معزز ${item.member}` : '!مملكة بطل معزز';
+      const myGuess = normalizeChallengeGuess(item.guess, '1');
+      const opponentAccept = (item.accept || '').trim();
+      return opponentAccept
+        ? `!مملكة بطل تحدي ${item.member || 'اسم_المنافس'} ${myGuess} ${opponentAccept}`
+        : `!مملكة بطل تحدي ${item.member || 'اسم_المنافس'} ${myGuess}`;
+    }
+
+    function saveCustomCommand() {
+      const value = document.getElementById('custom-command').value.trim();
+      if (!value) {
+        addLog('لا يوجد أمر لقيمته.');
+        return updateStatus({ state: 'خطأ', message: 'اكتب الأمر أولاً', room: document.getElementById('room').value.trim() });
+      }
+
+      const min = Number(document.getElementById('custom-min').value || 0);
+      const sec = Number(document.getElementById('custom-sec').value || 0);
+
+      commands.push({ type: 'أمر مخصص', member: value, min, sec, active: false });
+      saveCommands();
+      renderCommands();
+      document.getElementById('custom-command').value = '';
+      document.getElementById('custom-min').value = '0';
+      document.getElementById('custom-sec').value = '30';
+    }
+
+    function sendCustomCommand() {
+      const value = document.getElementById('custom-command').value.trim();
+      if (!value) {
+        addLog('لا يوجد أمر مخصص لإرساله.');
+        return updateStatus({ state: 'خطأ', message: 'اكتب الأمر المخصص أولاً', room: document.getElementById('room').value.trim() });
+      }
+      document.getElementById('message-text').value = value;
+      sendRoomMessage();
+    }
+
+    function renderCommands() {
+      const list = document.getElementById('command-list');
+      if (!commands.length) {
+        list.innerHTML = '<div class="command-item"><strong>لا توجد أوامر محفوظة</strong></div>';
+        return;
+      }
+
+      list.innerHTML = commands.map((item, index) => {
+        const status = item.active ? 'active' : 'waiting';
+        const commandText = getCommandText(item);
+
+        return `
+          <div class="command-item">
+            <div class="command-meta">
+              <span><strong>${item.type}</strong></span>
+              <span class="badge ${status}">${item.active ? 'مفعّل' : 'متوقف'}</span>
+            </div>
+            <p class="note">${commandText}</p>
+            <p class="note">الوقت: ${item.min} د ${item.sec} ث</p>
+            <div class="button-row">
+              <button class="btn-primary" onclick="toggleCommand(${index})">${item.active ? 'إلغاء' : 'تفعيل'}</button>
+              <button class="btn-secondary" onclick="editCommand(${index})">تعديل</button>
+              <button class="btn-danger" onclick="removeCommand(${index})">حذف</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleCommand(index) {
+      const item = commands[index];
+      item.active = !item.active;
+
+      if (item.active) {
+        const ms = ((item.min * 60) + item.sec) * 1000 || 1000;
+        if (timers[index]) clearInterval(timers[index]);
+        timers[index] = setInterval(() => {
+          sendCommandAsMessage(index);
+        }, ms);
+        addLog(`تم تفعيل الأمر تلقائيًا: ${getCommandText(item)}`);
+      } else {
+        clearInterval(timers[index]);
+        delete timers[index];
+        addLog(`تم إلغاء الأمر التلقائي: ${getCommandText(item)}`);
+      }
+
+      saveCommands();
+      renderCommands();
+    }
+
+    async function sendCommandAsMessage(index) {
+      const item = commands[index];
+      if (!item || !item.active) return;
+
+      const content = getCommandText(item);
+
+      try {
+        const response = await fetch('/api/message', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ content })
+        });
+
+        const data = await response.json();
+        if (!response.ok || !data.ok) {
+          addLog(`فشل إرسال الأمر: ${data?.message || response.statusText || 'فشل إرسال الأمر'}`);
+          return updateStatus({ state: 'خطأ', message: data?.message || 'فشل إرسال الأمر', room: document.getElementById('room').value.trim() });
+        }
+
+        addLog(`تم تنفيذ الأمر التلقائي: ${content}`);
+        updateStatus(data);
+      } catch (error) {
+        addLog(`فشل إرسال الأمر التلقائي: ${error.message || 'خطأ غير معروف'}`);
+        updateStatus({ state: 'خطأ', message: error.message || 'فشل إرسال الأمر', room: document.getElementById('room').value.trim() });
+      }
+    }
+
+    function safePrompt(label, defaultValue) {
+      if (typeof window !== 'undefined' && typeof window.prompt === 'function') {
+        return window.prompt(label, defaultValue);
+      }
+      return defaultValue;
+    }
+
+    function editCommand(index) {
+      const item = commands[index];
+      const rawMin = safePrompt('الدقائق:', String(item.min));
+      const rawSec = safePrompt('الثواني:', String(item.sec));
+      if (rawMin === null || rawSec === null) return;
+
+      const newMin = Number(rawMin);
+      const newSec = Number(rawSec);
+
+      item.min = Number.isFinite(newMin) ? Math.max(0, newMin) : item.min;
+      item.sec = Number.isFinite(newSec) ? Math.min(59, Math.max(0, newSec)) : item.sec;
+
+      if (item.type === 'تحدي بطل') {
+        const newMember = safePrompt('اسم الخصم:', item.member || '');
+        if (newMember !== null) item.member = String(newMember).trim();
+
+        const newGuess = safePrompt('رقمك (1 أو 2):', item.guess || '1');
+        if (newGuess !== null) item.guess = normalizeChallengeGuess(newGuess, item.guess || '1');
+
+        const newOpponentAccept = safePrompt('قبول الخصم (اتركه فارغاً إذا لم يوافق بعد):', item.accept || '');
+        if (newOpponentAccept !== null) item.accept = String(newOpponentAccept).trim();
+      } else if (item.member) {
+        const newMember = safePrompt('العضوية:', item.member);
+        if (newMember !== null) item.member = String(newMember).trim();
+      }
+
+      saveCommands();
+      renderCommands();
+    }
+
+    function removeCommand(index) {
+      clearInterval(timers[index]);
+      commands.splice(index, 1);
+      saveCommands();
+      renderCommands();
+    }
+
+    renderCommands();
+    loadStatus();
+  </script>
+</body>
+</html>
