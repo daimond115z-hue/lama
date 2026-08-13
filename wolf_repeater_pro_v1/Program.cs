@@ -10,7 +10,7 @@ b.Configuration.Sources
     .ToList()
     .ForEach(x => x.ReloadOnChange = false);
 b.WebHost.UseUrls("http://0.0.0.0:5000");
-b.Services.AddSingleton<WolfEngine>();
+b.Services.AddSingleton<IWolfService, WolfService>();
 b.Services.AddHttpLogging(logging =>
 {
     logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPropertiesAndHeaders | Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponsePropertiesAndHeaders;
