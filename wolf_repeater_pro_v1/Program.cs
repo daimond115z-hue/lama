@@ -29,7 +29,11 @@ app.MapPost("/api/connect", async (Credentials r, WolfEngine e) =>
 });
 app.MapPost("/api/disconnect", async (WolfEngine e) => { await e.Disconnect(); Console.WriteLine("[API] /api/disconnect called"); return Results.Ok(e.Status()); });
 app.MapPost("/api/room", (RoomRequest r, WolfEngine e) => { e.Room = r.Room.Trim(); e.Message = "تم تحديد الغرفة."; Console.WriteLine($"[API] /api/room called room={e.Room}"); return Results.Ok(e.Status()); });
-app.Run();
+app.MapPost("/api/message", async (MessageRequest r, WolfEngine e) =>
+{
+    var result = await e.SendMessage(r.Content);
+    return Results.Ok(result);
+});app.Run();
 record Credentials(string Email, string Password);
 record RoomRequest(string Room);
 sealed class WolfEngine {
