@@ -1,7 +1,11 @@
 using System.Text.Json;
 using WolfLive.Api;
 using WolfLive.Api.Commands;
-var b = WebApplication.CreateBuilder(args);
+var b = WebApplication.CreateBuilder(new WebApplicationOptions
+{
+    Args = args
+});
+
 b.WebHost.UseUrls("http://0.0.0.0:5000");
 b.Services.AddSingleton<WolfEngine>();
 b.Services.AddHttpLogging(logging =>
