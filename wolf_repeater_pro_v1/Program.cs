@@ -1,47 +1,49 @@
-using System.Text.Json;
 using WolfLive.Api;
 using WolfLive.Api.Commands;
+
 var b = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args
 });
+
 b.Configuration.Sources
     .OfType<Microsoft.Extensions.Configuration.Json.JsonConfigurationSource>()
     .ToList()
     .ForEach(x => x.ReloadOnChange = false);
+
 b.WebHost.UseUrls("http://0.0.0.0:5000");
+
 b.Services.AddSingleton<IWolfService, WolfService>();
+
 b.Services.AddHttpLogging(logging =>
 {
-    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPropertiesAndHeaders | Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponsePropertiesAndHeaders;
-});
-var app = b.Build();
-app.UseHttpLogging();
-app.UseDefaultFiles(new DefaultFilesOptions { DefaultFileNames = { "index.html" } });
-app.UseStaticFiles();
-app.MapGet("/api/status", (WolfEngine e) => e.Status());
-app.MapPost("/api/connect", async (Credentials r, WolfEngine e) =>
-{
-    Console.WriteLine($"[API] /api/connect called email={r.Email} room={e.Room}");
-    var status = await e.Connect(r.Email, r.Password);
-    Console.WriteLine($"[API] /api/connect response={JsonSerializer.Serialize(status)}");
-    return Results.Ok(status);
-});
-app.MapPost("/api/disconnect", async (WolfEngine e) => { await e.Disconnect(); Console.WriteLine("[API] /api/disconnect called"); return Results.Ok(e.Status()); });
-app.MapPost("/api/room", (RoomRequest r, WolfEngine e) => { e.Room = r.Room.Trim(); e.Message = "تم تحديد الغرفة."; Console.WriteLine($"[API] /api/room called room={e.Room}"); return Results.Ok(e.Status()); });
-app.MapPost("/api/message", async (MessageRequest r, WolfEngine e) =>
-{
-    var result = await e.SendMessage(r.Content);
-    return Results.Ok(result);
-})app.MapPost("/api/message", async (MessageRequest r, IWolfService service) =>
-{
-    var result = await service.SendGroupMessageAsync(r.Content);
-    return Results.Ok(result);
+    logging.LoggingFields =
+        Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestPropertiesAndHeaders |
+        Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponsePropertiesAndHeaders;
 });
 
-app.MapPost("/api/room", async (RoomRequest r, IWolfService service) =>
+var app = b.Build();
+
+app.UseHttpLogging();
+app.UseDefaultFiles(new DefaultFilesOptions
 {
-    var result = await service.JoinRoomAsync(r.RoomId, r.RoomPassword ?? "");
+    DefaultFileNames = { "index.html" }
+});
+app.UseStaticFiles();
+
+app.MapGet("/api/status", (IWolfService service) =>
+{
+    return Results.Ok(service.Status());
+});
+
+app.MapPost("/api/connect", async (Credentials r, IWolfService service) =>
+{
+    Console.WriteLine($"[API] /api/connect called email={r.Email}");
+
+    var result = await service.ConnectAsync(r.Email, r.Password);
+
+    Console.WriteLine($"[API] /api/connect response={result}");
+
     return Results.Ok(result);
 });
 
@@ -51,36 +53,24 @@ app.MapPost("/api/disconnect", async (IWolfService service) =>
     return Results.Ok(result);
 });
 
-app.MapGet("/api/status", (IWolfService service) =>
+app.MapPost("/api/room", async (RoomRequest r, IWolfService service) =>
 {
-    return Results.Ok(service.Status());
+    var result = await service.JoinRoomAsync(
+        r.RoomId,
+        r.RoomPassword ?? ""
+    );
+
+    return Results.Ok(result);
+});
+
+app.MapPost("/api/message", async (MessageRequest r, IWolfService service) =>
+{
+    var result = await service.SendGroupMessageAsync(r.Content);
+    return Results.Ok(result);
 });
 
 app.Run();
 
-record MessageRequest(string Content);
-record RoomRequest(string RoomId, string? RoomPassword);;app.Run();
 record Credentials(string Email, string Password);
-record RoomRequest(string Room);
-record MessageRequest(string Content);sealed class WolfEngine {
- IWolfClient? c; public string State { get; private set; } = "غير متصل"; public string Account { get; private set; } = ""; public string Room { get; set; } = ""; public string Message { get; set; } = "";
- public object Status() => new { state = State, account = Account, room = Room, message = Message };
- public async Task<object> Connect(string email, string password) { await Disconnect(); try { c = new WolfClient()
-                .SetupCommands()
-                .WithSerilog()
-                .Done();
-            c.OnConnected += (_) => { State = "متصل"; Message = "تم الاتصال بـ WOLF"; };
-            var ok = await c.Login(email, password);
-            Console.WriteLine($"[WolfEngine] Login result={ok} email={email}");
-            if (!ok) { c = null; State = "فشل"; Message = "فشل تسجيل الدخول."; return Status(); }
-            Account = email; State = "متصل"; Message = "تم تسجيل الدخول والاتصال.";
-            return Status();
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"[WolfEngine] Connect exception={ex}");
-            c = null; State = "خطأ"; Message = ex.Message; return Status();
-        }
-    }
- public async Task Disconnect() { c = null; State = "غير متصل"; Message = "تم القطع يدويًا."; await Task.CompletedTask; }
-}
+record RoomRequest(string RoomId, string? RoomPassword);
+record MessageRequest(string Content);
