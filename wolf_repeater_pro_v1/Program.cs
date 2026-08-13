@@ -33,7 +33,33 @@ app.MapPost("/api/message", async (MessageRequest r, WolfEngine e) =>
 {
     var result = await e.SendMessage(r.Content);
     return Results.Ok(result);
-});app.Run();
+})app.MapPost("/api/message", async (MessageRequest r, IWolfService service) =>
+{
+    var result = await service.SendGroupMessageAsync(r.Content);
+    return Results.Ok(result);
+});
+
+app.MapPost("/api/room", async (RoomRequest r, IWolfService service) =>
+{
+    var result = await service.JoinRoomAsync(r.RoomId, r.RoomPassword ?? "");
+    return Results.Ok(result);
+});
+
+app.MapPost("/api/disconnect", async (IWolfService service) =>
+{
+    var result = await service.DisconnectAsync();
+    return Results.Ok(result);
+});
+
+app.MapGet("/api/status", (IWolfService service) =>
+{
+    return Results.Ok(service.Status());
+});
+
+app.Run();
+
+record MessageRequest(string Content);
+record RoomRequest(string RoomId, string? RoomPassword);;app.Run();
 record Credentials(string Email, string Password);
 record RoomRequest(string Room);
 record MessageRequest(string Content);sealed class WolfEngine {
