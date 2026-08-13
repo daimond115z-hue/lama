@@ -5,7 +5,10 @@ var b = WebApplication.CreateBuilder(new WebApplicationOptions
 {
     Args = args
 });
-
+b.Configuration.Sources
+    .OfType<Microsoft.Extensions.Configuration.Json.JsonConfigurationSource>()
+    .ToList()
+    .ForEach(x => x.ReloadOnChange = false);
 b.WebHost.UseUrls("http://0.0.0.0:5000");
 b.Services.AddSingleton<WolfEngine>();
 b.Services.AddHttpLogging(logging =>
