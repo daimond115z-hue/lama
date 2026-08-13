@@ -2,7 +2,7 @@ using System.Text.Json;
 using WolfLive.Api;
 using WolfLive.Api.Commands;
 var b = WebApplication.CreateBuilder(args);
-b.WebHost.UseUrls("http://localhost:5000");
+b.WebHost.UseUrlsb.WebHost.UseUrls("http://0.0.0.0:5000");
 b.Services.AddSingleton<WolfEngine>();
 b.Services.AddHttpLogging(logging =>
 {
