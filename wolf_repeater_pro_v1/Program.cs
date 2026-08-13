@@ -36,7 +36,7 @@ app.MapPost("/api/message", async (MessageRequest r, WolfEngine e) =>
 });app.Run();
 record Credentials(string Email, string Password);
 record RoomRequest(string Room);
-sealed class WolfEngine {
+record MessageRequest(string Content);sealed class WolfEngine {
  IWolfClient? c; public string State { get; private set; } = "غير متصل"; public string Account { get; private set; } = ""; public string Room { get; set; } = ""; public string Message { get; set; } = "";
  public object Status() => new { state = State, account = Account, room = Room, message = Message };
  public async Task<object> Connect(string email, string password) { await Disconnect(); try { c = new WolfClient()
