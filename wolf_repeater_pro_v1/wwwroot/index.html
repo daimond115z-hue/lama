@@ -255,7 +255,7 @@
         <h2>🏠 إدارة الغرفة</h2>
         <div class="field-group">
           <label for="room">معرف الغرفة</label>
-          <input id="room" placeholder="مثال: 123456789">
+          <input id="room" type="text" value="" placeholder="مثال: 123456789">
           <label for="room-pass">كلمة مرور الغرفة (إذا وُجدت)</label>
           <input id="room-pass" type="password" placeholder="••••••••">
         </div>
@@ -678,6 +678,13 @@
 
     renderCommands();
     loadStatus();
-  </script>
+window.addEventListener('load', () => {
+  document.getElementById('room').value = '';
+  document.getElementById('room-pass').value = '';
+});
+
+renderCommands();
+loadStatus();
+</script>
 </body>
 </html>
