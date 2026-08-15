@@ -435,27 +435,63 @@
     }
 
     async function room() {
-      const roomId = document.getElementById('room').value.trim();
-      const roomPassword = document.getElementById('room-pass').value.trim();
-      try {
-        const response = await fetch('/api/room', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ room: roomId, password: roomPassword })
-        });
+  const roomId = document.getElementById('room').value.trim();
+  const roomPassword = document.getElementById('room-pass').value.trim();
 
-        const data = await response.json();
-        if (!response.ok || !data.ok) {
-          addLog(`فشل طلب دخول الغرفة ${roomId}: ${data?.message || response.statusText || 'فشل طلب الروم'}`);
-          return updateStatus({ state: 'خطأ', message: data?.message || 'فشل طلب الروم', room: roomId });
-        }
-        addLog(`طلب دخول الغرفة ${roomId} نُفذ. ${data.message}`);
-        updateStatus(data);
-      } catch (error) {
-        addLog(`فشل طلب دخول الغرفة ${roomId}: ${error.message || 'خطأ غير معروف'}`);
-        updateStatus({ state: 'خطأ', message: error.message || 'فشل طلب الروم', room: roomId });
-      }
+  if (!roomId) {
+    addLog('يرجى إدخال معرف الغرفة أولاً.');
+    return updateStatus({
+      state: 'خطأ',
+      message: 'يرجى إدخال معرف الغرفة أولاً.',
+      room: ''
+    });
+  }
+
+  try {
+    const response = await fetch('/api/room', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        roomId: roomId,
+        roomPassword: roomPassword
+      })
+    });
+
+    const data = await response.json();
+
+    if (!response.ok || !data.ok) {
+      const message =
+        data?.message ||
+        response.statusText ||
+        'فشل طلب دخول الغرفة';
+
+      addLog(`فشل طلب دخول الغرفة ${roomId}: ${message}`);
+
+      return updateStatus({
+        state: 'خطأ',
+        message: message,
+        room: data?.room || roomId
+      });
     }
+
+    addLog(`تم إرسال طلب دخول الغرفة ${roomId}.`);
+
+    updateStatus(data);
+
+  } catch (error) {
+    const message = error.message || 'خطأ غير معروف';
+
+    addLog(`فشل طلب دخول الغرفة ${roomId}: ${message}`);
+
+    updateStatus({
+      state: 'خطأ',
+      message: message,
+      room: roomId
+    });
+  }
+}
 
     async function sendRoomMessage(customContent) {
       const content = (customContent || document.getElementById('quick-command')?.value || '').trim();
