@@ -12,7 +12,8 @@ builder.Configuration.Sources
     .ToList()
     .ForEach(x => x.ReloadOnChange = false);
 
-builder.WebHost.UseUrls("http://0.0.0.0:5000");
+var port = Environment.GetEnvironmentVariable("PORT") ?? "10000";
+builder.WebHost.UseUrls($"http://0.0.0.0:{port}");
 
 builder.Services.AddSingleton<IWolfService, WolfService>();
 
